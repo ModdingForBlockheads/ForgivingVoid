@@ -4,13 +4,9 @@ Minecraft Mod. Makes the void hate you a little less (and vice-versa). Fall down
 
 - [Modpack Permissions](https://mods.twelveiterations.com/permissions)
 
-#### Forge
+#### Downloads
 
 [![Versions](http://cf.way2muchnoise.eu/versions/271009_latest.svg)](https://minecraft.curseforge.com/projects/forgiving-void) [![Downloads](http://cf.way2muchnoise.eu/full_271009_downloads.svg)](https://minecraft.curseforge.com/projects/forgiving-void)
-
-#### Fabric
-
-[![Versions](http://cf.way2muchnoise.eu/versions/547687_latest.svg)](https://minecraft.curseforge.com/projects/forgiving-void-fabric) [![Downloads](http://cf.way2muchnoise.eu/full_547687_downloads.svg)](https://minecraft.curseforge.com/projects/forgiving-void-fabric)
 
 ## Contributing
 
