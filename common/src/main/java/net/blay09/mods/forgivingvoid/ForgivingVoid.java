@@ -8,8 +8,10 @@ import net.blay09.mods.balm.api.event.TickType;
 import net.blay09.mods.forgivingvoid.mixin.ServerGamePacketListenerImplAccessor;
 import net.blay09.mods.forgivingvoid.mixin.ServerPlayerAccessor;
 import net.blay09.mods.forgivingvoid.mixin.ThrownTridentAccessor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,7 +41,8 @@ public class ForgivingVoid {
 
         Balm.getEvents().onEvent(LivingFallEvent.class, ForgivingVoid::onLivingEntityFall);
         final var entityAllowList = ForgivingVoidConfig.getActive().entityAllowList;
-        final var onlyPlayersExplicitlyAllowed = entityAllowList.isEmpty() || (entityAllowList.size() == 1 && entityAllowList.contains(ResourceLocation.withDefaultNamespace("player")));
+        final var onlyPlayersExplicitlyAllowed = entityAllowList.isEmpty() || (entityAllowList.size() == 1 && entityAllowList.contains(ResourceLocation.withDefaultNamespace(
+                "player")));
         final var otherEntitiesImplicitlyAllowed = ForgivingVoidConfig.getActive().tridentForgiveness;
         if (onlyPlayersExplicitlyAllowed && !otherEntitiesImplicitlyAllowed) {
             Balm.getEvents().onTickEvent(TickType.ServerPlayer, TickPhase.Start, ForgivingVoid::onPlayerTick);
@@ -61,6 +64,10 @@ public class ForgivingVoid {
         boolean isInVoid = entity.getY() < triggerAtY && entity.yo < triggerAtY;
         boolean isTeleporting = entity instanceof ServerPlayer player && ((ServerGamePacketListenerImplAccessor) player.connection).getAwaitingPositionFromClient() != null;
         CompoundTag persistentData = Balm.getHooks().getPersistentData(entity);
+        if (entity.onGround()) {
+            persistentData.putLong("LastGroundedPos", entity.blockPosition().asLong());
+        }
+
         if (isInVoid && !isTeleporting && isEnabledForDimension(entity.level().dimension()) && fireForgivingVoidEvent(entity)) {
             if (entity instanceof LivingEntity livingEntity) {
                 applyFallThroughVoidEffects(livingEntity);
@@ -74,7 +81,12 @@ public class ForgivingVoid {
             if (entity instanceof ServerPlayerAccessor player) {
                 player.setIsChangingDimension(true);
             }
-            entity.teleportTo(entity.getX(), ForgivingVoidConfig.getActive().fallingHeight, entity.getZ());
+            final var returnToGrounded = ForgivingVoidConfig.getActive().returnToLastGrounded;
+            final var lastGroundedPos = persistentData.contains("LastGroundedPos") ? BlockPos.of(persistentData.getLong("LastGroundedPos")) : entity.blockPosition();
+            final var x = returnToGrounded ? lastGroundedPos.getX() + 0.5f : entity.getX();
+            final var y = ForgivingVoidConfig.getActive().fallingHeight;
+            final var z = returnToGrounded ? lastGroundedPos.getZ() + 0.5f : entity.getZ();
+            entity.teleportTo(x, y, z);
             persistentData.putBoolean("ForgivingVoidIsFalling", true);
         } else if (persistentData.getBoolean("ForgivingVoidIsFalling")) {
             // LivingFallEvent is not called when the player falls into water or is flying, so reset it manually - and give no damage at all.
