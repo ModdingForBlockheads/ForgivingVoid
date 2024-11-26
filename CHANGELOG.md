@@ -1,2 +1,1 @@
-- Added fallThroughVoidEffects config option to configure the effects to be applied when falling through the void
-- Added returnToLastGrounded config option (default: true) that returns the player above their last grounded position to prevent them from abusing Forgiving Void to cross larger distances
+- Updated to Minecraft 1.21.4
