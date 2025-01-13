@@ -1,18 +1,19 @@
 package net.blay09.mods.forgivingvoid;
 
 import net.blay09.mods.balm.api.Balm;
-import net.blay09.mods.balm.api.EmptyLoadContext;
+import net.blay09.mods.balm.forge.ForgeLoadContext;
 import net.minecraftforge.fml.IExtensionPoint;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ForgivingVoid.MOD_ID)
 public class ForgeForgivingVoid {
 
-    public ForgeForgivingVoid() {
-        Balm.initialize(ForgivingVoid.MOD_ID, EmptyLoadContext.INSTANCE, ForgivingVoid::initialize);
+    public ForgeForgivingVoid(FMLJavaModLoadingContext context) {
+        final var loadContext = new ForgeLoadContext(context.getModEventBus());
+        Balm.initialize(ForgivingVoid.MOD_ID, loadContext, ForgivingVoid::initialize);
 
-        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
+        context.registerDisplayTest(IExtensionPoint.DisplayTest.IGNORE_ALL_VERSION);
     }
 
 }
